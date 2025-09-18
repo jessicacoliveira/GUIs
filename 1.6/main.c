@@ -92,27 +92,15 @@ int main (int argc, char* args[])
     SDL_Texture* trofeus = IMG_LoadTexture(ren, "trofeu_sprite.png");
     assert(trofeus != NULL);
     
-    int running = 1, running_menu = 1;
+    int running = 1, placar = 0;
     int go1 = 1, go2 = 1, go3 = 1, winner = 0;
     
-    Uint32 espera = TIMEOUT, espera_menu = TIMEOUT;
-    while(running_menu){
-        while (running) {
-            SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,255);
-            SDL_RenderClear(ren);
-            SDL_SetRenderDrawColor(ren, 0xFF,0x00,0xFF,0x00);
-            fill_rect_with_pattern(ren, pistas, &r6);
-            fill_rect_with_pattern(ren, pistas, &r7);
-            fill_rect_with_pattern(ren, pistas, &r8);
-            fill_rect_with_pattern(ren, chegada, &r4); //desenhar chegada
-            fill_rect_with_pattern(ren, chegada, &r5); //desenhar largada
-            SDL_RenderCopy(ren, carros, NULL, &r1);
-            SDL_RenderCopy(ren, carros, NULL, &r2);
-            SDL_RenderCopy(ren, carros, NULL, &r3);
-            SDL_RenderPresent(ren);
-    
-            SDL_Event evt;
-            int isevt = AUX_WaitEventTimeoutCount(&evt, &espera);
+    Uint32 espera = TIMEOUT;
+    while (running) {
+        SDL_Event evt;
+        int isevt = AUX_WaitEventTimeoutCount(&evt, &espera);
+        
+        if(placar==0){
             if (isevt) {
                 switch (evt.type){
                     case SDL_KEYDOWN:
@@ -136,56 +124,35 @@ int main (int argc, char* args[])
                     case SDL_MOUSEMOTION:
                         if (go3) r3.x = evt.motion.x;
                         if (SDL_HasIntersection(&r3, &r4)){
-                                    go3 = 0;
-                                    if (winner == 0) winner = 3;
-                                }                    
+                            go3 = 0;
+                            if (winner == 0) winner = 3;
+                        }                    
                         break;
                 }
             } else {
                 if (SDL_HasIntersection(&r1, &r4)){
-                                    go1 = 0;
-                                    if (winner == 0) winner = 1;
-                                }
+                    go1 = 0;
+                    if (winner == 0) winner = 1;
+                }
                 if (go1 == 1)
-                r1.x += 5;
+                    r1.x += 5;
             }
             fit_rect_in_screen(&r1);
             fit_rect_in_screen(&r2);
             fit_rect_in_screen(&r3);
             fix_mouse_bug(&r3);
-            
-            if (go1 == 0 && go2 == 0 && go3 ==0) running = 0;
+                  
+            if (go1 == 0 && go2 == 0 && go3 ==0) placar = 1;
         }
         
-        
-        SDL_SetRenderDrawColor(ren, 0,0,255,100);
-        SDL_Rect rscore = { LARGURA_TELA/2 - 200, ALTURA_TELA/2 - 80, 400,160 };
-        SDL_RenderFillRect(ren, &rscore);
-        
-        SDL_Rect ricon = {LARGURA_TELA/2 - 200, ALTURA_TELA/2 - 40, 80,80};
-        SDL_Rect area_icon = {0, 0, 160,148};
-        SDL_RenderCopy(ren, trofeus, &area_icon, &ricon);
-        
-        SDL_Rect r = { LARGURA_TELA/2 - 100, ALTURA_TELA/2 - 40, 280,80 };
-        if (winner == 3) SDL_RenderCopy(ren, txt_mouse, NULL, &r);
-        else if (winner == 2) SDL_RenderCopy(ren, txt_keyboard, NULL, &r);
-        else SDL_RenderCopy(ren, txt_anima, NULL, &r);
-        
-        SDL_Rect rmessage = { LARGURA_TELA/2 - 200, ALTURA_TELA/2 +150, 400,30 };
-        SDL_RenderCopy(ren, txt_message, NULL, &rmessage);
-        SDL_RenderPresent(ren);
-        
-        
-        SDL_Event evt_menu;
-        int isevt_menu = AUX_WaitEventTimeoutCount(&evt_menu, &espera_menu);
-        if (isevt_menu) {
-                switch (evt_menu.type){
+        else if (placar==1){
+            if (isevt) {
+                switch (evt.type){
                     case SDL_QUIT:
-                        running_menu = 0;
+                        running = 0;
                         break;
                     case SDL_KEYDOWN:
-                        if (evt_menu.key.keysym.sym == SDLK_SPACE) {
-                            running = 1;
+                        if (evt.key.keysym.sym == SDLK_SPACE) {
                             go1 = 1;
                             go2 = 1;
                             go3 = 1;
@@ -193,11 +160,43 @@ int main (int argc, char* args[])
                             r1.x = 50;
                             r2.x = 50;
                             r3.x = 50;
+                            placar=0;
                         }
                         break;
                 }
+            }
         }
-} //final_menu
+        SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,255);
+        SDL_RenderClear(ren);
+        fill_rect_with_pattern(ren, pistas, &r6);
+        fill_rect_with_pattern(ren, pistas, &r7);
+        fill_rect_with_pattern(ren, pistas, &r8);
+        fill_rect_with_pattern(ren, chegada, &r4); //desenhar chegada
+        fill_rect_with_pattern(ren, chegada, &r5); //desenhar largada
+        SDL_RenderCopy(ren, carros, NULL, &r1);
+        SDL_RenderCopy(ren, carros, NULL, &r2);
+        SDL_RenderCopy(ren, carros, NULL, &r3);
+
+        if(placar==1){   
+            SDL_SetRenderDrawColor(ren, 0,0,255,100);
+            SDL_Rect rscore = { LARGURA_TELA/2 - 200, ALTURA_TELA/2 - 80, 400,160 };
+            SDL_RenderFillRect(ren, &rscore);
+        
+            SDL_Rect ricon = {LARGURA_TELA/2 - 200, ALTURA_TELA/2 - 40, 80,80};
+            SDL_Rect area_icon = {0, 0, 160,148};
+            SDL_RenderCopy(ren, trofeus, &area_icon, &ricon);
+        
+            SDL_Rect r = { LARGURA_TELA/2 - 100, ALTURA_TELA/2 - 40, 280,80 };
+            if (winner == 3) SDL_RenderCopy(ren, txt_mouse, NULL, &r);
+            else if (winner == 2) SDL_RenderCopy(ren, txt_keyboard, NULL, &r);
+            else SDL_RenderCopy(ren, txt_anima, NULL, &r);
+        
+            SDL_Rect rmessage = { LARGURA_TELA/2 - 200, ALTURA_TELA/2 +150, 400,30 };
+            SDL_RenderCopy(ren, txt_message, NULL, &rmessage);
+        }
+        SDL_RenderPresent(ren);
+        
+    }
 
     /* FINALIZACAO */
     SDL_DestroyTexture(trofeus);
