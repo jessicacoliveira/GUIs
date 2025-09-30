@@ -14,9 +14,9 @@ enum State{
 typedef struct {
     SDL_Rect *r;
     int x0;
-	  int y0;
+	int y0;
     int offset_x;
-	  int offset_y;
+	int offset_y;
 } DragInfo;
 
 int AUX_WaitEventTimeoutCount (SDL_Event* evt, Uint32* ms);
@@ -129,15 +129,15 @@ int main (int argc, char* args[])
 			//vazio
 		}
 		SDL_SetRenderDrawColor(ren, 255,255,255,255);
-    SDL_RenderClear(ren);
+    	SDL_RenderClear(ren);
 		SDL_SetRenderDrawColor(ren, colors[cor].r, colors[cor].g, colors[cor].b, colors[cor].a);
 		fit_rect_in_screen(&rect);
 		SDL_RenderFillRect(ren, &rect);
 		SDL_RenderPresent(ren);
 	}
 	SDL_DestroyRenderer(ren);
-  SDL_DestroyWindow(win);
-  SDL_Quit();
+	SDL_DestroyWindow(win);
+	SDL_Quit();
 }
 	
 int AUX_WaitEventTimeoutCount (SDL_Event* evt, Uint32* ms){
